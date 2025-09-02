@@ -1,0 +1,39 @@
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #fff;
+    color: #000;
+    margin: 0;
+    padding: 0;
+}
+header {
+    background: #000;
+    color: #fff;
+    text-align: center;
+    padding: 1em 0;
+    font-size: 2em;
+    letter-spacing: 0.1em;
+}
+.headlines, .links {
+    margin: 2em auto;
+    max-width: 600px;
+}
+.headlines h2, .links h2 {
+    font-size: 1.2em;
+    border-bottom: 1px solid #000;
+    margin-bottom: 0.5em;
+}
+ul {
+    list-style: none;
+    padding: 0;
+}
+ul li {
+    margin: 0.5em 0;
+}
+ul li a {
+    color: #000;
+    text-decoration: underline;
+    font-weight: bold;
+}
+ul li a:hover {
+    color: #d00;
+}
