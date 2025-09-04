@@ -1,0 +1,43 @@
+name: Inoreader Dispatch
+
+on:
+  workflow_dispatch:
+    inputs:
+      payload:
+        description: 'JSON payload from Inoreader/Zapier'
+        required: true
+        type: string
+
+jobs:
+  append:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Append incoming item to staging.json
+        env:
+          INPUT_PAYLOAD: ${{ github.event.inputs.payload }}
+        run: |
+          node scripts/append-staging.js
+
+      - name: Commit staging changes
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: 'chore: append incoming feed item to staging.json'
+          file_pattern: 'staging.json'
+          branch: 'staging/inoreader'
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: 'chore: append incoming feed item to staging.json'
+          branch: 'staging/inoreader'
+          title: 'Incoming feed items (Inoreader)'
+          body: 'Auto-generated PR with new incoming items from Inoreader/Zapier.'
