@@ -1,32 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MedAffairs News</title>
-    <link rel="stylesheet" href="style.css">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>MedAffairs.tech</title>
+    <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <header>
-        <h1>MEDAFFAIRS.TECH</h1>
-        <h2>News Aggregator</h2>
+
+    <!-- Top: three photo headlines -->
+    <section class="hero-lockup">
+        <a class="hero-item" href="#">
+            <img class="hero-img" src="https://images.unsplash.com/photo-1581091870622-3f0b32b7f3b4?w=1200&q=80&auto=format&fit=crop" alt="Headline 1">
+            <div class="headline">Top Story One — Short blurb or title</div>
+        </a>
+
+        <a class="hero-item" href="#">
+            <img class="hero-img" src="https://images.unsplash.com/photo-1509395176047-4a66953fd231?w=1200&q=80&auto=format&fit=crop" alt="Headline 2">
+            <div class="headline">Top Story Two — Short blurb or title</div>
+        </a>
+
+        <a class="hero-item" href="#">
+            <img class="hero-img" src="https://images.unsplash.com/photo-1512850185-6c1f2b4a4b9f?w=1200&q=80&auto=format&fit=crop" alt="Headline 3">
+            <div class="headline">Top Story Three — Short blurb or title</div>
+        </a>
+    </section>
+
+    <!-- Main site title -->
+    <header class="site-header">
+        <h1 class="main-title">MEDAFFAIRS.TECH</h1>
     </header>
+
+    <!-- Three columns of links below the title -->
     <main>
-        <section class="headline">
-            <a href="#" class="main-headline">Main Headline Story Goes Here</a>
-        </section>
-        <section class="links">
-            <ul>
-                <li><a href="#">News Link 1</a></li>
-                <li><a href="#">News Link 2</a></li>
-                <li><a href="#">News Link 3</a></li>
-                <li><a href="#">News Link 4</a></li>
-                <li><a href="#">News Link 5</a></li>
-            </ul>
+        <section class="columns">
+            <div class="column industry">
+                <h2>Industry</h2>
+                <ul>
+                    <li><a href="#">Industry Story 1</a></li>
+                    <li><a href="#">Industry Story 2</a></li>
+                    <li><a href="#">Industry Story 3</a></li>
+                    <li><a href="#">Industry Story 4</a></li>
+                </ul>
+            </div>
+
+            <div class="column tech">
+                <h2>Tech</h2>
+                <ul>
+                    <li><a href="#">Tech Story 1</a></li>
+                    <li><a href="#">Tech Story 2</a></li>
+                    <li><a href="#">Tech Story 3</a></li>
+                    <li><a href="#">Tech Story 4</a></li>
+                </ul>
+            </div>
+
+            <div class="column opinion">
+                <h2>Opinion</h2>
+                <ul>
+                    <li><a href="#">Opinion Piece 1</a></li>
+                    <li><a href="#">Opinion Piece 2</a></li>
+                    <li><a href="#">Opinion Piece 3</a></li>
+                    <li><a href="#">Opinion Piece 4</a></li>
+                </ul>
+            </div>
         </section>
     </main>
+
     <footer>
         <p>&copy; 2025 MedAffairs.tech</p>
     </footer>
+
 </body>
 </html>
