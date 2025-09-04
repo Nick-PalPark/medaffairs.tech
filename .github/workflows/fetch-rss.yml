@@ -1,0 +1,36 @@
+name: Fetch RSS Feeds
+
+on:
+  schedule:
+    - cron: '0 */6 * * *' # every 6 hours
+  workflow_dispatch: {}
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - name: Install
+        run: npm ci
+      - name: Run fetch script
+        run: npm run fetch
+      - name: Commit staging
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: 'chore: update staging.json from RSS'
+          file_pattern: 'staging.json'
+          branch: 'staging/rss-updates'
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: 'chore: update staging.json from RSS'
+          branch: 'staging/rss-updates'
+          title: 'RSS candidates: automated update'
+          body: 'Automated feed pull. Review headlines and merge when ready.'
