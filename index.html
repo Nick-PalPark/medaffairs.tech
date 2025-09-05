@@ -71,6 +71,77 @@
 
     <script src="script.js"></script>
 
+    <!-- Dynamic Article Loading -->
+    <script>
+    async function loadArticles() {
+        try {
+            // Fetch the articles.json file created by your Zaps
+            const response = await fetch('./articles.json');
+            const data = await response.json();
+            
+            console.log('Loaded articles:', data); // Debug log
+            
+            // Update hero sections with priority articles
+            updateHeroSections(data.heroes || []);
+            
+            // Update column lists with approved articles  
+            updateColumn('.industry ul', data.industry || []);
+            updateColumn('.tech ul', data.tech || []);
+            
+            // Opinion column stays static since it's not in your 5 AI categories
+            
+        } catch (error) {
+            console.error('Failed to load articles:', error);
+            console.log('Using fallback static content');
+        }
+    }
+
+    function updateHeroSections(heroes) {
+        const heroItems = document.querySelectorAll('.hero-item');
+        
+        // Sort heroes by priority and update each section
+        const sortedHeroes = heroes.sort((a, b) => {
+            const priorityA = parseInt(a.priority) || 999;
+            const priorityB = parseInt(b.priority) || 999;
+            return priorityA - priorityB;
+        });
+        
+        sortedHeroes.forEach((article, index) => {
+            if (heroItems[index] && article && index < 3) {
+                // Update hero link and headline
+                heroItems[index].href = article.url;
+                heroItems[index].querySelector('.headline').textContent = article.title;
+                
+                // Update alt text for accessibility
+                const img = heroItems[index].querySelector('.hero-img');
+                if (img) {
+                    img.alt = article.title;
+                }
+            }
+        });
+        
+        console.log(`Updated ${Math.min(sortedHeroes.length, 3)} hero sections`);
+    }
+
+    function updateColumn(selector, articles) {
+        const list = document.querySelector(selector);
+        if (list && articles.length > 0) {
+            // Replace static content with dynamic articles
+            list.innerHTML = articles.map(article => 
+                `<li><a href="${article.url}" target="_blank">${article.title}</a></li>`
+            ).join('');
+            
+            console.log(`Updated ${selector} with ${articles.length} articles`);
+        }
+    }
+
+    // Load articles when page loads
+    document.addEventListener('DOMContentLoaded', loadArticles);
+    
+    // Refresh articles every 5 minutes for live updates
+    setInterval(loadArticles, 5 * 60 * 1000);
+    </script>
+
     <footer>
         <p>&copy; 2025 MedAffairs.tech</p>
     </footer>
