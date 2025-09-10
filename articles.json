@@ -1,6 +1,37 @@
 {
-  "heroes": [],
-  "industry": [],
-  "tech": [],
-  "last_updated": ""
+  "last_updated": "2025-09-10T17:00:00+00:00",
+  "heroes": [
+    {
+      "title": "Healthcare CMO Summit 2025: Driving Innovation in Healthcare Leadership",
+      "url": "https://www.pm360online.com/healthcare-cmo-summit-2025-driving-innovation-in-healthcare-leadership/",
+      "cover_image": "https://www.pm360online.com/wp-content/uploads/2025/08/HC-CMO-Sept-Summit-2025-H2-02-300x300.jpg",
+      "date": "2025-09-03T18:11:16+00:00",
+      "author": "Sydney Yankowicz",
+      "feed": "PM360",
+      "tags": ["Industry"]
+    }
+    // Add up to 3 hero articles
+  ],
+  "industry": [
+    {
+      "title": "Healthcare CMO Summit 2025: Driving Innovation in Healthcare Leadership",
+      "url": "https://www.pm360online.com/healthcare-cmo-summit-2025-driving-innovation-in-healthcare-leadership/",
+      "date": "2025-09-03T18:11:16+00:00",
+      "author": "Sydney Yankowicz",
+      "feed": "PM360",
+      "tags": ["Industry"]
+    }
+    // Add more industry articles here
+  ],
+  "tech": [
+    {
+      "title": "Machine Learning in Medical Affairs: Opportunities & Challenges",
+      "url": "https://techinsights.com/machine-learning-med-affairs",
+      "date": "2025-08-22T09:00:00+00:00",
+      "author": "Alex Tech",
+      "feed": "Tech Insights",
+      "tags": ["Tech"]
+    }
+    // Add more tech articles here
+  ]
 }
