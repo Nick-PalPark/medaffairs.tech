@@ -9,8 +9,25 @@
       "author": "Sydney Yankowicz",
       "feed": "PM360",
       "tags": ["Industry"]
+    },
+    {
+      "title": "Sample Hero Article 2",
+      "url": "https://example.com/hero2",
+      "cover_image": "https://via.placeholder.com/300x300",
+      "date": "2025-09-05T10:00:00+00:00",
+      "author": "John Doe",
+      "feed": "Sample Feed",
+      "tags": ["Tech"]
+    },
+    {
+      "title": "Sample Hero Article 3",
+      "url": "https://example.com/hero3", 
+      "cover_image": "https://via.placeholder.com/300x300",
+      "date": "2025-09-06T14:30:00+00:00",
+      "author": "Jane Smith",
+      "feed": "Sample Feed",
+      "tags": ["Industry"]
     }
-    // Add up to 3 hero articles
   ],
   "industry": [
     {
@@ -20,8 +37,23 @@
       "author": "Sydney Yankowicz",
       "feed": "PM360",
       "tags": ["Industry"]
+    },
+    {
+      "title": "Medical Device Regulations Update",
+      "url": "https://example.com/med-device-regs",
+      "date": "2025-09-04T09:15:00+00:00",
+      "author": "Sarah Johnson",
+      "feed": "MedRegNews",
+      "tags": ["Industry"]
+    },
+    {
+      "title": "Pharmaceutical Market Trends Q3 2025",
+      "url": "https://example.com/pharma-trends",
+      "date": "2025-09-05T16:20:00+00:00",
+      "author": "Mike Thompson",
+      "feed": "PharmaInsights",
+      "tags": ["Industry"]
     }
-    // Add more industry articles here
   ],
   "tech": [
     {
@@ -31,7 +63,48 @@
       "author": "Alex Tech",
       "feed": "Tech Insights",
       "tags": ["Tech"]
+    },
+    {
+      "title": "AI-Powered Drug Discovery Platforms",
+      "url": "https://example.com/ai-drug-discovery",
+      "date": "2025-09-01T11:45:00+00:00",
+      "author": "Dr. Lisa Chen",
+      "feed": "BioTech Today",
+      "tags": ["Tech"]
+    },
+    {
+      "title": "Digital Health Data Analytics Revolution",
+      "url": "https://example.com/digital-health-analytics",
+      "date": "2025-09-02T13:30:00+00:00",
+      "author": "Robert Davis",
+      "feed": "HealthTech Weekly",
+      "tags": ["Tech"]
     }
-    // Add more tech articles here
+  ],
+  "opinion": [
+    {
+      "title": "Expert Interviews: Leading Medical Affairs Professionals",
+      "url": "https://example.com/expert-interviews",
+      "date": "2025-09-07T10:00:00+00:00",
+      "author": "Editorial Team",
+      "feed": "MedAffairs.tech",
+      "tags": ["Opinion"]
+    },
+    {
+      "title": "Market Forecasts: Medical Device Trends 2025",
+      "url": "https://example.com/market-forecasts",
+      "date": "2025-09-08T14:15:00+00:00",
+      "author": "Market Analysis Team",
+      "feed": "MedAffairs.tech", 
+      "tags": ["Opinion"]
+    },
+    {
+      "title": "Ethics in AI: Medical Applications and Considerations",
+      "url": "https://example.com/ethics-ai",
+      "date": "2025-09-09T09:30:00+00:00",
+      "author": "Dr. Ethics Advisor",
+      "feed": "MedAffairs.tech",
+      "tags": ["Opinion"]
+    }
   ]
 }

@@ -42,12 +42,7 @@
             <div class="column opinion">
                 <div class="column-icon">💬</div>
                 <h2>Products & Opinion</h2>
-                <ul>
-                    <li><a href="#">Expert Interviews</a></li>
-                    <li><a href="#">Market Forecasts</a></li>
-                    <li><a href="#">Ethics in AI</a></li>
-                    <li><a href="#">Opinion Piece 4</a></li>
-                </ul>
+                <ul></ul>
             </div>
         </section>
     </main>
@@ -94,10 +89,17 @@
                 `<li><a href="${article.url}" target="_blank" rel="noopener noreferrer">${article.title}</a></li>`
             ).join('');
 
+            // Opinion
+            const opinionList = document.querySelector('.opinion ul');
+            opinionList.innerHTML = (data.opinion || []).map(article =>
+                `<li><a href="${article.url}" target="_blank" rel="noopener noreferrer">${article.title}</a></li>`
+            ).join('');
+
         } catch (err) {
             document.querySelectorAll('.headline').forEach(el => el.textContent = "Error loading news");
             document.querySelector('.industry ul').innerHTML = "<li>Error loading industry news</li>";
             document.querySelector('.tech ul').innerHTML = "<li>Error loading tech insights</li>";
+            document.querySelector('.opinion ul').innerHTML = "<li>Error loading opinion articles</li>";
         }
     }
 
