@@ -1,37 +1,64 @@
 {
-  "last_updated": "2025-09-10T17:00:00+00:00",
+  "lastUpdated": "2025-09-10T18:04:28.524990",
   "heroes": [
     {
-      "title": "Healthcare CMO Summit 2025: Driving Innovation in Healthcare Leadership",
-      "url": "https://www.pm360online.com/healthcare-cmo-summit-2025-driving-innovation-in-healthcare-leadership/",
-      "cover_image": "https://www.pm360online.com/wp-content/uploads/2025/08/HC-CMO-Sept-Summit-2025-H2-02-300x300.jpg",
-      "date": "2025-09-03T18:11:16+00:00",
-      "author": "Sydney Yankowicz",
-      "feed": "PM360",
-      "tags": ["Industry"]
+      "title": "FDA Approves First AI-Powered Drug Discovery Platform",
+      "url": "https://example.com/fda-ai-drug-discovery",
+      "category": "hero",
+      "priority": 1
+    },
+    {
+      "title": "Clinical Trial Data Shows 65% Success Rate with New Biomarker",
+      "url": "https://example.com/clinical-biomarker-success",
+      "category": "hero",
+      "priority": 2
+    },
+    {
+      "title": "Digital Health Revolution: Patient Outcomes Improve 40%",
+      "url": "https://example.com/digital-health-outcomes",
+      "category": "hero",
+      "priority": 3
     }
-    // Add up to 3 hero articles
   ],
   "industry": [
     {
-      "title": "Healthcare CMO Summit 2025: Driving Innovation in Healthcare Leadership",
-      "url": "https://www.pm360online.com/healthcare-cmo-summit-2025-driving-innovation-in-healthcare-leadership/",
-      "date": "2025-09-03T18:11:16+00:00",
-      "author": "Sydney Yankowicz",
-      "feed": "PM360",
-      "tags": ["Industry"]
+      "title": "Regulatory Framework Updates for AI in Healthcare",
+      "url": "https://example.com/ai-regulatory-updates"
+    },
+    {
+      "title": "Pharmaceutical Giants Invest $2B in Digital Transformation",
+      "url": "https://example.com/pharma-digital-investment"
+    },
+    {
+      "title": "New Clinical Trial Guidelines for Medical Devices",
+      "url": "https://example.com/clinical-trial-guidelines"
+    },
+    {
+      "title": "Biotech Startups Lead Innovation in Personalized Medicine",
+      "url": "https://example.com/biotech-personalized-medicine"
     }
-    // Add more industry articles here
   ],
   "tech": [
     {
-      "title": "Machine Learning in Medical Affairs: Opportunities & Challenges",
-      "url": "https://techinsights.com/machine-learning-med-affairs",
-      "date": "2025-08-22T09:00:00+00:00",
-      "author": "Alex Tech",
-      "feed": "Tech Insights",
-      "tags": ["Tech"]
+      "title": "Machine Learning Algorithms Transform Drug Safety Monitoring",
+      "url": "https://example.com/ml-drug-safety"
+    },
+    {
+      "title": "Real-World Evidence Platforms Gain FDA Recognition",
+      "url": "https://example.com/rwe-platforms-fda"
+    },
+    {
+      "title": "Blockchain Technology Ensures Clinical Trial Data Integrity",
+      "url": "https://example.com/blockchain-clinical-trials"
+    },
+    {
+      "title": "Cloud Computing Accelerates Medical Affairs Operations",
+      "url": "https://example.com/cloud-medical-affairs"
     }
-    // Add more tech articles here
-  ]
+  ],
+  "metadata": {
+    "source": "Medical Affairs Technology Curated Content",
+    "totalArticles": 11,
+    "updateFrequency": "Manual trigger via Zapier webhook"
+  }
 }
