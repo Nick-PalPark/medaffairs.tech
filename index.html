@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,50 +7,38 @@
     <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-
-    <!-- Top: three photo headlines (clickable) -->
     <section class="hero-lockup">
-        <a class="hero-item" href="#" data-loading="true">
-            <img class="hero-img" src="https://images.unsplash.com/photo-1581091870622-3f0b32b7f3b4?w=1200&q=80&auto=format&fit=crop" alt="Loading...">
-            <div class="headline">Loading latest headlines...</div>
+        <a class="hero-item" href="#">
+            <img class="hero-img" src="" alt="">
+            <div class="headline"></div>
         </a>
-
-        <a class="hero-item" href="#" data-loading="true">
-            <img class="hero-img" src="https://images.unsplash.com/photo-1509395176047-4a66953fd231?w=1200&q=80&auto=format&fit=crop" alt="Loading...">
-            <div class="headline">Loading latest headlines...</div>
+        <a class="hero-item" href="#">
+            <img class="hero-img" src="" alt="">
+            <div class="headline"></div>
         </a>
-
-        <a class="hero-item" href="#" data-loading="true">
-            <img class="hero-img" src="https://images.unsplash.com/photo-1512850185-6c1f2b4a4b9f?w=1200&q=80&auto=format&fit=crop" alt="Loading...">
-            <div class="headline">Loading latest headlines...</div>
+        <a class="hero-item" href="#">
+            <img class="hero-img" src="" alt="">
+            <div class="headline"></div>
         </a>
     </section>
 
-    <!-- Main site title -->
     <header class="site-header">
         <h1 class="main-title">MEDAFFAIRS.TECH</h1>
-        <div class="last-updated" id="lastUpdated" style="display: none;"></div>
+        <div class="last-updated" id="lastUpdated" style="display:none;"></div>
     </header>
 
-    <!-- Three columns of links below the title -->
     <main>
         <section class="columns">
             <div class="column industry">
                 <div class="column-icon">🏢</div>
                 <h2>Industry News</h2>
-                <ul data-loading="true">
-                    <li><a href="#">Loading industry news...</a></li>
-                </ul>
+                <ul></ul>
             </div>
-
             <div class="column tech">
                 <div class="column-icon">💻</div>
                 <h2>Tech Insights</h2>
-                <ul data-loading="true">
-                    <li><a href="#">Loading tech insights...</a></li>
-                </ul>
+                <ul></ul>
             </div>
-
             <div class="column opinion">
                 <div class="column-icon">💬</div>
                 <h2>Products & Opinion</h2>
@@ -65,201 +52,60 @@
         </section>
     </main>
 
-    <!-- Dynamic Article Loading -->
     <script>
     async function loadArticles() {
         try {
-            console.log('Fetching articles from articles.json...');
-            
-            // Add cache busting parameter to ensure fresh data
-            const timestamp = new Date().getTime();
-            const response = await fetch(`./articles.json?t=${timestamp}`);
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
+            const response = await fetch('./articles.json?cb=' + Date.now());
+            if (!response.ok) throw new Error('Could not load articles.json');
+
             const data = await response.json();
-            console.log('Successfully loaded articles:', data);
-            
-            // Update last updated timestamp if available
-            if (data.lastUpdated) {
-                updateLastUpdated(data.lastUpdated);
-            }
-            
-            // Update hero sections with priority articles
-            if (data.heroes && Array.isArray(data.heroes)) {
-                updateHeroSections(data.heroes);
-            } else {
-                console.warn('No heroes array found in data');
-                showFallbackHeroes();
-            }
-            
-            // Update column lists with articles
-            if (data.industry && Array.isArray(data.industry)) {
-                updateColumn('.industry ul', data.industry, 'industry');
-            } else {
-                console.warn('No industry array found in data');
-                showFallbackColumn('.industry ul', 'industry');
-            }
-            
-            if (data.tech && Array.isArray(data.tech)) {
-                updateColumn('.tech ul', data.tech, 'tech');
-            } else {
-                console.warn('No tech array found in data');
-                showFallbackColumn('.tech ul', 'tech');
-            }
-            
-            // Log metadata if available
-            if (data.metadata) {
-                console.log('Articles metadata:', data.metadata);
-            }
-            
-        } catch (error) {
-            console.error('Failed to load articles:', error);
-            console.log('Using fallback static content');
-            showFallbackContent();
-        }
-    }
 
-    function updateLastUpdated(timestamp) {
-        const lastUpdatedEl = document.getElementById('lastUpdated');
-        if (lastUpdatedEl) {
-            const date = new Date(timestamp);
-            lastUpdatedEl.textContent = `Last updated: ${date.toLocaleString()}`;
-            lastUpdatedEl.style.display = 'block';
-        }
-    }
+            // Last updated
+            if (data.last_updated) {
+                const lastUpdatedEl = document.getElementById('lastUpdated');
+                lastUpdatedEl.textContent = 'Last updated: ' + new Date(data.last_updated).toLocaleString();
+                lastUpdatedEl.style.display = 'block';
+            }
 
-    function updateHeroSections(heroes) {
-        const heroItems = document.querySelectorAll('.hero-item');
-        
-        // Sort heroes by priority (1, 2, 3) and update each section
-        const sortedHeroes = heroes.sort((a, b) => {
-            const priorityA = parseInt(a.priority) || 999;
-            const priorityB = parseInt(b.priority) || 999;
-            return priorityA - priorityB;
-        });
-        
-        console.log('Sorted heroes by priority:', sortedHeroes);
-        
-        sortedHeroes.forEach((article, index) => {
-            if (heroItems[index] && article && index < 3) {
-                // Remove loading state
-                heroItems[index].removeAttribute('data-loading');
-                
-                // Update hero link and headline
-                heroItems[index].href = article.url || '#';
-                
-                const headlineEl = heroItems[index].querySelector('.headline');
-                if (headlineEl && article.title) {
-                    headlineEl.textContent = article.title;
+            // Heroes
+            const heroItems = document.querySelectorAll('.hero-item');
+            (data.heroes || []).forEach((article, i) => {
+                if (heroItems[i]) {
+                    heroItems[i].href = article.url || "#";
+                    heroItems[i].querySelector('.headline').textContent = article.title || "No title";
+                    heroItems[i].querySelector('.hero-img').src = article.cover_image || "";
+                    heroItems[i].querySelector('.hero-img').alt = article.title || "";
+                    if (article.url && article.url.startsWith('http')) {
+                        heroItems[i].target = '_blank';
+                        heroItems[i].rel = 'noopener noreferrer';
+                    }
                 }
-                
-                // Update alt text for accessibility
-                const img = heroItems[index].querySelector('.hero-img');
-                if (img && article.title) {
-                    img.alt = article.title;
-                }
-                
-                // Open external links in new tab
-                if (article.url && article.url.startsWith('http')) {
-                    heroItems[index].target = '_blank';
-                    heroItems[index].rel = 'noopener noreferrer';
-                }
-            }
-        });
-        
-        console.log(`Updated ${Math.min(sortedHeroes.length, 3)} hero sections`);
-    }
+            });
 
-    function updateColumn(selector, articles, columnType) {
-        const list = document.querySelector(selector);
-        if (list && articles.length > 0) {
-            // Remove loading state
-            list.removeAttribute('data-loading');
-            
-            // Replace static content with dynamic articles
-            list.innerHTML = articles.map(article => {
-                const url = article.url || '#';
-                const title = article.title || 'Untitled Article';
-                const target = url.startsWith('http') ? ' target="_blank" rel="noopener noreferrer"' : '';
-                
-                return `<li><a href="${url}"${target}>${title}</a></li>`;
-            }).join('');
-            
-            console.log(`Updated ${columnType} column with ${articles.length} articles`);
-        } else {
-            console.warn(`No articles found for ${columnType} column`);
-            showFallbackColumn(selector, columnType);
+            // Industry
+            const industryList = document.querySelector('.industry ul');
+            industryList.innerHTML = (data.industry || []).map(article =>
+                `<li><a href="${article.url}" target="_blank" rel="noopener noreferrer">${article.title}</a></li>`
+            ).join('');
+
+            // Tech
+            const techList = document.querySelector('.tech ul');
+            techList.innerHTML = (data.tech || []).map(article =>
+                `<li><a href="${article.url}" target="_blank" rel="noopener noreferrer">${article.title}</a></li>`
+            ).join('');
+
+        } catch (err) {
+            document.querySelectorAll('.headline').forEach(el => el.textContent = "Error loading news");
+            document.querySelector('.industry ul').innerHTML = "<li>Error loading industry news</li>";
+            document.querySelector('.tech ul').innerHTML = "<li>Error loading tech insights</li>";
         }
     }
 
-    function showFallbackHeroes() {
-        const heroItems = document.querySelectorAll('.hero-item');
-        const fallbackTitles = [
-            'Medical Affairs Technology News - Stay Updated',
-            'Latest Healthcare Innovation Updates',
-            'Industry Insights and Analysis'
-        ];
-        
-        heroItems.forEach((item, index) => {
-            item.removeAttribute('data-loading');
-            const headline = item.querySelector('.headline');
-            if (headline) {
-                headline.textContent = fallbackTitles[index] || 'Latest News';
-            }
-        });
-    }
-
-    function showFallbackColumn(selector, columnType) {
-        const list = document.querySelector(selector);
-        if (list) {
-            list.removeAttribute('data-loading');
-            
-            const fallbackContent = {
-                industry: [
-                    '<li><a href="#">AI in Clinical Trials</a></li>',
-                    '<li><a href="#">Digital Health Startups</a></li>',
-                    '<li><a href="#">Regulatory Updates</a></li>',
-                    '<li><a href="#">Industry Analysis</a></li>'
-                ],
-                tech: [
-                    '<li><a href="#">Data Analytics Trends</a></li>',
-                    '<li><a href="#">Machine Learning in Med Affairs</a></li>',
-                    '<li><a href="#">Blockchain Applications</a></li>',
-                    '<li><a href="#">Technology Insights</a></li>'
-                ]
-            };
-            
-            list.innerHTML = fallbackContent[columnType]?.join('') || '<li><a href="#">Content loading...</a></li>';
-        }
-    }
-
-    function showFallbackContent() {
-        showFallbackHeroes();
-        showFallbackColumn('.industry ul', 'industry');
-        showFallbackColumn('.tech ul', 'tech');
-    }
-
-    // Load articles when page loads
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('Page loaded, loading articles...');
-        loadArticles();
-    });
-    
-    // Refresh articles every 5 minutes for live updates
-    setInterval(loadArticles, 5 * 60 * 1000);
-    
-    // Manual refresh function (can be called from console for testing)
-    window.refreshArticles = loadArticles;
+    document.addEventListener('DOMContentLoaded', loadArticles);
     </script>
-
-    <script src="script.js"></script>
 
     <footer>
         <p>&copy; 2025 MedAffairs.tech</p>
     </footer>
-
 </body>
 </html>
