@@ -1,20 +1,34 @@
 {
-  "lastUpdated": "2025-09-10T20:25:04.967790",
-  "totalApproved": 1,
+  "lastUpdated": "2025-09-10T21:14:21.582452",
+  "totalApproved": 2,
   "approvedArticles": [
     {
-      "id": "ino-ar-3a9c6e77747e0f6e",
-      "title": "First global medical AI foundation model drives 100-country research collaboration",
-      "snappyTitle": "First global medical AI foundation model drives 100-country research collaboration",
-      "url": "https://medicalxpress.com/news/2025-09-global-medical-ai-foundation-country.html",
-      "author": "",
-      "publishedDate": "2025-09-09T17:16:57+00:00",
-      "category": "Health",
-      "source": "Medical Xpress - latest medical and health news stories",
-      "tags": "Industry,AI",
-      "coverImage": "https://scx1.b-cdn.net/csz/news/tmb/2025/nus-co-leads-push-to-b.jpg",
+      "id": "article-1",
+      "title": "Revolutionary AI Breakthrough",
+      "snappyTitle": "AI Just Got Scary Good!",
+      "url": "https://example.com/ai-breakthrough",
+      "author": "Dr. Jane Smith",
+      "publishedDate": "2024-01-15T10:00:00Z",
+      "category": "Technology",
+      "source": "Tech Today",
+      "tags": "AI, breakthrough, technology",
+      "coverImage": "https://example.com/ai-image.jpg",
       "status": "approved",
-      "approvedDate": "2025-09-10T20:21:41.393575"
+      "approvedDate": "2025-09-10T21:14:21.582431"
+    },
+    {
+      "id": "article-2",
+      "title": "Medical Research Update",
+      "snappyTitle": "Game-Changing Medical Discovery",
+      "url": "https://example.com/medical-research",
+      "author": "Prof. John Doe",
+      "publishedDate": "2024-01-16T14:00:00Z",
+      "category": "Health",
+      "source": "Medical Journal",
+      "tags": "health, research, medicine",
+      "coverImage": "https://example.com/medical-image.jpg",
+      "status": "approved",
+      "approvedDate": "2025-09-10T21:14:21.582449"
     }
   ]
 }
