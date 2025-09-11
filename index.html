@@ -4,102 +4,48 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>MedAffairs.tech</title>
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="static/css/style.css" />
 </head>
 <body>
-    <section class="hero-lockup">
-        <a class="hero-item" target="_blank" rel="noopener noreferrer">
-            <img class="hero-img" alt="">
-            <div class="headline"></div>
-        </a>
-        <a class="hero-item" target="_blank" rel="noopener noreferrer">
-            <img class="hero-img" alt="">
-            <div class="headline"></div>
-        </a>
-        <a class="hero-item" target="_blank" rel="noopener noreferrer">
-            <img class="hero-img" alt="">
-            <div class="headline"></div>
-        </a>
-    </section>
+    <div class="page-wrap">
+        <header class="site-header">
+            <h1 class="site-title">
+                <a href="/">MEDAFFAIRS.TECH</a>
+            </h1>
+        </header>
 
-    <header class="site-header">
-        <h1 class="main-title">MEDAFFAIRS.TECH</h1>
-        <div class="last-updated" id="lastUpdated" style="display:none;"></div>
-    </header>
+        <div id="hero-strip" class="hero-strip">
+            <!-- Heroes will be populated by JavaScript -->
+        </div>
 
-    <main>
-        <section class="columns">
-            <div class="column industry">
-                <div class="column-icon">🏢</div>
-                <h2>Industry News</h2>
-                <ul></ul>
+        <div class="content">
+            <div class="columns">
+                <div class="col">
+                    <h2>Industry News</h2>
+                    <ul id="news-list" class="list">
+                        <!-- News items will be populated by JavaScript -->
+                    </ul>
+                </div>
+                <div class="col">
+                    <h2>Tech Insights</h2>
+                    <ul id="tech-list" class="list">
+                        <!-- Tech items will be populated by JavaScript -->
+                    </ul>
+                </div>
+                <div class="col">
+                    <h2>Opinion & Analysis</h2>
+                    <ul id="opinion-list" class="list">
+                        <!-- Opinion items will be populated by JavaScript -->
+                    </ul>
+                </div>
             </div>
-            <div class="column tech">
-                <div class="column-icon">💻</div>
-                <h2>Tech Insights</h2>
-                <ul></ul>
-            </div>
-            <div class="column opinion">
-                <div class="column-icon">💬</div>
-                <h2>Products & Opinion</h2>
-                <ul></ul>
-            </div>
-        </section>
-    </main>
+        </div>
 
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        fetch('articles-updated.json')
-            .then(res => res.ok ? res.json() : Promise.reject('Failed to load'))
-            .then(data => {
-                // Last updated
-                if (data.last_updated) {
-                    const lastUpdatedEl = document.getElementById('lastUpdated');
-                    lastUpdatedEl.textContent = 'Last updated: ' +
-                        new Date(data.last_updated).toLocaleString();
-                    lastUpdatedEl.style.display = 'block';
-                }
+        <footer class="site-footer">
+            <p>&copy; 2025 MedAffairs.tech • Last updated: <span id="last-updated">Loading...</span></p>
+        </footer>
+    </div>
 
-                // Heroes
-                const heroItems = document.querySelectorAll('.hero-item');
-                (data.heroes || []).forEach((article, i) => {
-                    if (heroItems[i]) {
-                        heroItems[i].href = article.url || "#";
-                        heroItems[i].querySelector('.headline').textContent = article.title || "";
-                        heroItems[i].querySelector('.hero-img').src = article.cover_image || "";
-                        heroItems[i].querySelector('.hero-img').alt = article.title || "";
-                    }
-                });
-
-                // Industry News
-                const industryList = document.querySelector('.industry ul');
-                industryList.innerHTML = (data.industry || []).map(article =>
-                    `<li><a href="${article.url}" target="_blank" rel="noopener noreferrer">${article.title}</a></li>`
-                ).join('');
-
-                // Tech Insights
-                const techList = document.querySelector('.tech ul');
-                techList.innerHTML = (data.tech || []).map(article =>
-                    `<li><a href="${article.url}" target="_blank" rel="noopener noreferrer">${article.title}</a></li>`
-                ).join('');
-
-                // Products & Opinion
-                const opinionList = document.querySelector('.opinion ul');
-                opinionList.innerHTML = (data.opinion || []).map(article =>
-                    `<li><a href="${article.url}" target="_blank" rel="noopener noreferrer">${article.title}</a></li>`
-                ).join('');
-            })
-            .catch(() => {
-                document.querySelectorAll('.headline').forEach(el => el.textContent = "Error loading news");
-                document.querySelector('.industry ul').innerHTML = "<li>Error loading industry news</li>";
-                document.querySelector('.tech ul').innerHTML = "<li>Error loading tech insights</li>";
-                document.querySelector('.opinion ul').innerHTML = "<li>Error loading opinion pieces</li>";
-            });
-    });
-    </script>
-
-    <footer>
-        <p>&copy; 2025 MedAffairs.tech</p>
-    </footer>
+    <script src="static/js/site.js" defer></script>
 </body>
 </html>
