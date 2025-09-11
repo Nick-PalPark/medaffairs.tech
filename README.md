@@ -36,4 +36,4 @@ If you want, I can:
 - Or I can walk you step-by-step through adding secrets and enabling the repository_dispatch trigger from medaffairs-data.
 
 DNS / Pages help
-- If you'd like, tell me your DNS host and I'll give exact DNS records to point medaffairs.tech to GitHub Pages.
+- If you'd like, tell me your DNS host and I'll give exact DNS records to point medaffairs.tech to GitHub Pages.# Setup complete
