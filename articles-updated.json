@@ -1,34 +1,5 @@
 {
-  "lastUpdated": "2025-09-10T21:14:21.582452",
-  "totalApproved": 2,
-  "approvedArticles": [
-    {
-      "id": "article-1",
-      "title": "Revolutionary AI Breakthrough",
-      "snappyTitle": "AI Just Got Scary Good!",
-      "url": "https://example.com/ai-breakthrough",
-      "author": "Dr. Jane Smith",
-      "publishedDate": "2024-01-15T10:00:00Z",
-      "category": "Technology",
-      "source": "Tech Today",
-      "tags": "AI, breakthrough, technology",
-      "coverImage": "https://example.com/ai-image.jpg",
-      "status": "approved",
-      "approvedDate": "2025-09-10T21:14:21.582431"
-    },
-    {
-      "id": "article-2",
-      "title": "Medical Research Update",
-      "snappyTitle": "Game-Changing Medical Discovery",
-      "url": "https://example.com/medical-research",
-      "author": "Prof. John Doe",
-      "publishedDate": "2024-01-16T14:00:00Z",
-      "category": "Health",
-      "source": "Medical Journal",
-      "tags": "health, research, medicine",
-      "coverImage": "https://example.com/medical-image.jpg",
-      "status": "approved",
-      "approvedDate": "2025-09-10T21:14:21.582449"
-    }
-  ]
+  "lastUpdated": "2025-09-11T00:02:35.849293",
+  "totalApproved": 0,
+  "approvedArticles": []
 }
