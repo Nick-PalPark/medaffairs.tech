@@ -1,12 +1,12 @@
-name: Sync articles.json from medaffairs-data
+name: Sync articles.json from medaffairs-articles
 
 on:
   repository_dispatch:
-    types: [medaffairs-data-updated]
+    types: [medaffairs-articles-updated]
   workflow_dispatch:
 
 permissions:
-  contents: write    # allow commit back to this repo
+  contents: write    # allow commit back to this repo if needed
 
 jobs:
   sync:
@@ -17,13 +17,18 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Checkout medaffairs-data (private) into subdir
+      - name: Checkout medaffairs-articles (private) into subdir
         uses: actions/checkout@v4
         with:
-          repository: Nick-PalPark/medaffairs-data
+          repository: Nick-PalPark/medaffairs-articles
           token: ${{ secrets.MEDAFFAIRS_DATA_TOKEN }}
-          path: medaffairs-data
+          path: medaffairs-articles
           fetch-depth: 1
+
+      - name: Debug print files in medaffairs-articles
+        run: |
+          echo "Contents of medaffairs-articles (top-level):"
+          ls -la medaffairs-articles || true
 
       - name: Ensure data directory
         run: |
@@ -31,9 +36,9 @@ jobs:
 
       - name: Copy articles.json into site
         run: |
-          if [ ! -f medaffairs-data/articles.json ]; then echo "No medaffairs-data/articles.json found" && exit 1; fi
-          cp medaffairs-data/articles.json data/articles.json
-          echo "Copied medaffairs-data/articles.json to data/articles.json"
+          if [ ! -f medaffairs-articles/articles.json ]; then echo "No medaffairs-articles/articles.json found" && exit 1; fi
+          cp medaffairs-articles/articles.json data/articles.json
+          echo "Copied medaffairs-articles/articles.json to data/articles.json"
 
       - name: Commit & push changes if any
         run: |
@@ -41,9 +46,12 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           if [ -n "$(git status --porcelain)" ]; then
             git add data/articles.json
-            git commit -m "Sync articles.json from medaffairs-data: $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
+            git commit -m "Sync articles.json from medaffairs-articles: $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
             git push
             echo "Pushed updated data/articles.json"
           else
             echo "No changes to articles.json"
           fi
+
+      - name: (optional) further deploy steps
+        run: echo "Add site build/deploy steps here if needed"
