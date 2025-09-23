@@ -1,6 +1,15 @@
 {
-  "last_updated": 1700000000000,
+  "last_updated": 1758652341253,
   "heroes": [
+    {
+      "original_title": "Breakthrough Gene Therapy for Rare Disease",
+      "generated_title": "GENE THERAPY MIRACLE: Rare Disease Cured!",
+      "manual_title": null,
+      "url": "https://example.com/gene-therapy-breakthrough",
+      "source": "Gene Therapy News",
+      "published_at": 1758652341247,
+      "image": "https://via.placeholder.com/180x150?text=Gene+Therapy"
+    },
     {
       "manual_title": "AI Breakthrough in Medical Research",
       "generated_title": "AI Revolutionizes Medical Diagnosis!",
@@ -13,18 +22,10 @@
     {
       "generated_title": "Global Health Initiative Success",
       "original_title": "Health Initiative Update",
-      "url": "https://example.com/article2", 
+      "url": "https://example.com/article2",
       "image": "https://via.placeholder.com/180x150?text=Health",
       "source": "Health News",
       "published_at": 1699000001000
-    },
-    {
-      "manual_title": "Revolutionary Gene Therapy Approved",
-      "original_title": "New Gene Therapy Shows Promise",
-      "url": "https://example.com/article3",
-      "image": "https://via.placeholder.com/180x150?text=Gene",
-      "source": "Medical Research",
-      "published_at": 1699000006000
     }
   ],
   "columns": {
