@@ -1,39 +1,179 @@
-# medaffairs.tech — Drudge-inspired front-end + private-data sync
+# MedAffairs.tech — Automated RSS Article Collection & Display
 
-This repo contains the static front-end for medaffairs.tech and a GitHub Actions workflow that syncs the private medaffairs-data/articles.json into this repo at publish-time.
+A Drudge.com-inspired website that automatically collects and displays medical/healthcare news articles from RSS feeds via Zapier integration.
 
-Quick start / setup checklist
-1. medaffairs-data repo:
-   - Keep medaffairs-data private if you prefer (recommended by you).
-   - Ensure medaffairs-data has the fetch workflow that updates articles.json and triggers medaffairs.tech by calling repository_dispatch with event_type `medaffairs-data-updated`. Example:
-     - POST to https://api.github.com/repos/Nick-PalPark/medaffairs.tech/dispatches with body {"event_type":"medaffairs-data-updated"} using a token with repo:dispatch permissions.
+## 🚀 Key Features
 
-2. Create a PAT for this repo to read medaffairs-data:
-   - Create a Personal Access Token (classic) with `repo` scope (or finer-grained token with repo:contents access).
-   - In medaffairs.tech repository settings -> Secrets -> Actions, create the secret `MEDAFFAIRS_DATA_TOKEN` with that PAT.
+- **Automated RSS Processing**: Zapier integration with Inoreader for seamless article collection
+- **Drudge-inspired Layout**: 3 hero articles above header + 3-column layout below
+- **Smart Categorization**: Automatic article assignment to Industry News, Tech Insights, or Opinion & Analysis
+- **Article Management**: Hero article rotation, 20-article limits per column
+- **Mobile Responsive**: Clean, fast-loading design that works on all devices
+- **GitHub Pages Hosting**: Static site with automated deployments
 
-3. GitHub Actions:
-   - The workflow `.github/workflows/sync_data.yml` will:
-     - Run on `repository_dispatch` event named `medaffairs-data-updated` (or manually).
-     - Check out medaffairs-data using the PAT and copy `articles.json` into `data/articles.json`.
-     - Commit and push the updated file if it changed.
-   - After the commit, GitHub Pages (if configured) will publish the updated site.
+## 📋 Quick Setup
 
-4. GitHub Pages:
-   - Configure GitHub Pages to serve from the branch/folder you want (e.g., main branch / root or `docs/`).
-   - If you serve from main root, the site is ready. If you serve from `docs/`, move the static files into `docs/` or adjust the workflow to place files there.
-   - Add a `CNAME` file with `medaffairs.tech` if you haven't already and configure DNS as described in your repo settings (A records or CNAME depending on setup).
+### 1. Zapier Integration (Recommended)
+1. **RSS Trigger**: Set up Zapier with RSS by Zapier trigger
+2. **Webhook Action**: Configure repository dispatch to this repo
+3. **Article Processing**: Articles automatically categorized and added
+4. **See**: [ZAPIER_INTEGRATION.md](ZAPIER_INTEGRATION.md) for detailed setup
 
-Notes about titles and editing
-- The site will display:
-  1) manual_title (if present)
-  2) generated_title (AI snappy headline)
-  3) original_title (feed title)
-- Keep using the admin/editor approach we discussed earlier (or edit articles.json in medaffairs-data via the GitHub UI) to set `manual_title`. The medaffairs-data fetch workflow will preserve manual_title when it updates articles.json.
+### 2. Manual Article Management
+- **Admin Interface**: Use `/admin.html` to manually add articles
+- **Direct Editing**: Edit `data/articles.json` in the GitHub interface
+- **API Integration**: Use repository dispatch API for custom integrations
 
-If you want, I can:
-- Update the medaffairs.tech repo directly with these files (I can open a PR) so you can review and merge.
-- Or I can walk you step-by-step through adding secrets and enabling the repository_dispatch trigger from medaffairs-data.
+### 3. Legacy Data Sync (Optional)
+If you have an existing medaffairs-data repository:
+### 3. Legacy Data Sync (Optional)
+If you have an existing medaffairs-data repository:
+- Create a PAT with `repo` scope
+- Add `MEDAFFAIRS_DATA_TOKEN` secret to repository settings
+- The `sync_data.yml` workflow will sync from medaffairs-data on repository dispatch
 
-DNS / Pages help
-- If you'd like, tell me your DNS host and I'll give exact DNS records to point medaffairs.tech to GitHub Pages.# Setup complete
+### 4. GitHub Pages Setup
+- **Pages Source**: Deploy from main branch (root directory)
+- **Custom Domain**: CNAME file already configured for medaffairs.tech
+- **DNS**: Point A records to GitHub Pages IPs or CNAME to username.github.io
+
+## 🏗️ Architecture
+
+### Data Flow
+```
+Inoreader RSS → Zapier → GitHub Repository Dispatch → Article Processing → Website Update
+```
+
+### Article Structure
+Articles are stored in `data/articles.json` with this structure:
+```json
+{
+  "last_updated": 1700000000000,
+  "heroes": [
+    {
+      "manual_title": "Optional manual title override",
+      "generated_title": "AI-generated snappy title",
+      "original_title": "Original RSS title",
+      "url": "https://example.com/article",
+      "image": "https://example.com/image.jpg",
+      "source": "Source Name",
+      "published_at": 1699000000000
+    }
+  ],
+  "columns": {
+    "news": [...],     // Industry News articles
+    "tech": [...],     // Tech Insights articles  
+    "opinion": [...]   // Opinion & Analysis articles
+  }
+}
+```
+
+### Article Limits & Rotation
+- **Heroes**: Max 3 articles (newest first)
+- **Columns**: Max 20 articles each (newest first)
+- **Auto-rotation**: Older articles automatically removed
+
+## 📝 Article Management
+
+### Automatic Categorization
+Articles are categorized based on tags and content:
+- **Hero Articles**: Tagged with `hero` or `isHero: true`
+- **Industry News**: Default category, or tagged `news`
+- **Tech Insights**: Tagged `tech` or category contains "tech"
+- **Opinion & Analysis**: Tagged `opinion` or category contains "opinion"
+
+### Title Priority
+Displayed titles use this hierarchy:
+1. `manual_title` (manually set override)
+2. `generated_title` (AI-generated snappy title)
+3. `original_title` (from RSS feed)
+
+### Manual Management Options
+1. **Admin Interface**: Visit `/admin.html` for a user-friendly form
+2. **GitHub Web Interface**: Edit `data/articles.json` directly
+3. **API Integration**: Use repository dispatch API calls
+
+## 🔧 Development
+
+### Local Development
+```bash
+# Clone repository
+git clone https://github.com/Nick-PalPark/medaffairs.tech.git
+cd medaffairs.tech
+
+# Serve locally
+python3 -m http.server 8000
+# Visit http://localhost:8000
+```
+
+### Testing Workflows
+```bash
+# Test Zapier webhook simulation
+gh api repos/Nick-PalPark/medaffairs.tech/dispatches \
+  --method POST \
+  --field event_type='zapier-article-received' \
+  --field client_payload='{"title":"Test Article","url":"https://example.com"}'
+```
+
+### File Structure
+```
+.
+├── index.html              # Main website
+├── admin.html              # Article management interface
+├── data/articles.json      # Article data store
+├── static/
+│   ├── css/style.css      # Responsive styling
+│   └── js/site.js         # Article rendering logic
+├── .github/workflows/
+│   ├── zapier-webhook.yml  # Main article processing
+│   ├── sync_data.yml      # Legacy data sync
+│   └── sync_from_articles.yml
+├── ZAPIER_INTEGRATION.md   # Zapier setup guide
+└── README.md              # This file
+```
+
+## 📱 Mobile Responsive Design
+
+The website features a fully responsive design that adapts to all screen sizes:
+- **Desktop**: 3 hero articles side-by-side, 3-column layout
+- **Mobile**: Stacked hero articles, single-column layout
+- **Tablet**: Optimized layouts for medium screens
+
+## 🔒 Security & Privacy
+
+- **Static Site**: No server-side processing, enhanced security
+- **GitHub Actions**: Secure token-based authentication
+- **Rate Limiting**: Built-in GitHub API rate limiting
+- **Content Validation**: Article data validated before processing
+
+## 📈 Monitoring & Maintenance
+
+### Monitoring Points
+- **GitHub Actions**: Check workflow execution logs
+- **Zapier Dashboard**: Monitor task success/failure rates
+- **Website Uptime**: GitHub Pages uptime monitoring
+- **Article Updates**: Check "Last updated" timestamp on site
+
+### Troubleshooting
+1. **Articles not appearing**: Check GitHub Actions logs
+2. **Zapier failures**: Verify GitHub token permissions
+3. **Category issues**: Review tag-based categorization rules
+4. **Image loading**: Ensure cover image URLs are accessible
+
+## 📚 Additional Resources
+
+- [Zapier Integration Guide](ZAPIER_INTEGRATION.md) - Complete setup instructions
+- [GitHub Pages Documentation](https://docs.github.com/en/pages)
+- [Repository Dispatch API](https://docs.github.com/en/rest/repos/repos#create-a-repository-dispatch-event)
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly with local server
+5. Submit a pull request
+
+## 📄 License
+
+This project is open source and available under the [MIT License](LICENSE).

@@ -17,6 +17,14 @@
       "image": "https://via.placeholder.com/180x150?text=Health",
       "source": "Health News",
       "published_at": 1699000001000
+    },
+    {
+      "manual_title": "Revolutionary Gene Therapy Approved",
+      "original_title": "New Gene Therapy Shows Promise",
+      "url": "https://example.com/article3",
+      "image": "https://via.placeholder.com/180x150?text=Gene",
+      "source": "Medical Research",
+      "published_at": 1699000006000
     }
   ],
   "columns": {
@@ -33,6 +41,24 @@
         "url": "https://example.com/news2",
         "source": "Business News",
         "published_at": 1699000003000
+      },
+      {
+        "original_title": "Healthcare Stock Market Update",
+        "url": "https://example.com/news3",
+        "source": "Market News",
+        "published_at": 1699000007000
+      },
+      {
+        "original_title": "Clinical Trial Results Released",
+        "url": "https://example.com/news4",
+        "source": "Clinical News",
+        "published_at": 1699000008000
+      },
+      {
+        "original_title": "New Hospital Opens in Major City",
+        "url": "https://example.com/news5",
+        "source": "Healthcare News",
+        "published_at": 1699000009000
       }
     ],
     "tech": [
@@ -41,6 +67,25 @@
         "url": "https://example.com/tech1",
         "source": "Tech Review",
         "published_at": 1699000004000
+      },
+      {
+        "generated_title": "AI Diagnoses Cancer with 99% Accuracy",
+        "original_title": "Artificial Intelligence Cancer Detection Study",
+        "url": "https://example.com/tech2",
+        "source": "Tech Medical",
+        "published_at": 1699000010000
+      },
+      {
+        "original_title": "Robotic Surgery Advancement",
+        "url": "https://example.com/tech3",
+        "source": "Surgical Tech",
+        "published_at": 1699000011000
+      },
+      {
+        "original_title": "Wearable Health Monitoring Devices",
+        "url": "https://example.com/tech4",
+        "source": "Health Tech",
+        "published_at": 1699000012000
       }
     ],
     "opinion": [
@@ -51,6 +96,19 @@
         "url": "https://example.com/opinion1",
         "source": "Medical Opinion",
         "published_at": 1699000005000
+      },
+      {
+        "original_title": "Healthcare Policy Reform Analysis",
+        "url": "https://example.com/opinion2",
+        "source": "Policy Analysis",
+        "published_at": 1699000013000
+      },
+      {
+        "generated_title": "Is Personalized Medicine Worth the Cost?",
+        "original_title": "Economic Analysis of Personalized Medicine",
+        "url": "https://example.com/opinion3",
+        "source": "Health Economics",
+        "published_at": 1699000014000
       }
     ]
   }

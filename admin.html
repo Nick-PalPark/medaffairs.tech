@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedAffairs.tech - Article Manager</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            border-bottom: 2px solid #333;
+            padding-bottom: 10px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        input[type="text"], input[type="url"], textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        textarea {
+            height: 60px;
+            resize: vertical;
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .btn-primary {
+            background: #007cba;
+            color: white;
+        }
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        button:hover {
+            opacity: 0.9;
+        }
+        .output {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            border: 1px solid #e9ecef;
+        }
+        .output h3 {
+            margin-top: 0;
+            color: #495057;
+        }
+        .output code {
+            display: block;
+            background: #fff;
+            padding: 15px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            border: 1px solid #ddd;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .instructions {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 4px;
+            margin-bottom: 30px;
+            border-left: 4px solid #2196f3;
+        }
+        .instructions h3 {
+            margin-top: 0;
+            color: #1976d2;
+        }
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            padding: 15px;
+            border-radius: 4px;
+            border: 1px solid #ffeaa7;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📰 MedAffairs.tech Article Manager</h1>
+        
+        <div class="instructions">
+            <h3>How to Use This Tool</h3>
+            <p>This tool generates GitHub API calls to add articles to your website. After filling out the form:</p>
+            <ol>
+                <li>Click "Generate API Call" to create the repository dispatch payload</li>
+                <li>Copy the generated curl command</li>
+                <li>Run it in your terminal or use a tool like Postman</li>
+                <li>The article will be processed and added to your website automatically</li>
+            </ol>
+        </div>
+
+        <div class="warning">
+            <strong>Note:</strong> You'll need a GitHub Personal Access Token with <code>repo</code> permissions to use the generated API calls.
+        </div>
+
+        <form id="articleForm">
+            <div class="form-group">
+                <label for="title">Article Title *</label>
+                <input type="text" id="title" name="title" required 
+                       placeholder="e.g., FDA Approves Revolutionary Cancer Treatment">
+            </div>
+
+            <div class="form-group">
+                <label for="snappyTitle">Snappy Title (Optional)</label>
+                <input type="text" id="snappyTitle" name="snappyTitle" 
+                       placeholder="e.g., BREAKTHROUGH: New Cancer Drug Saves Lives!">
+            </div>
+
+            <div class="form-group">
+                <label for="url">Article URL *</label>
+                <input type="url" id="url" name="url" required 
+                       placeholder="https://example.com/article">
+            </div>
+
+            <div class="form-group">
+                <label for="category">Category</label>
+                <select id="category" name="category">
+                    <option value="News">Industry News</option>
+                    <option value="Technology">Tech Insights</option>
+                    <option value="Opinion">Opinion & Analysis</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="tags">Tags</label>
+                <input type="text" id="tags" name="tags" 
+                       placeholder="e.g., FDA, cancer, breakthrough, hero">
+                <small style="color: #666;">Comma-separated. Use "hero" tag to make this a hero article.</small>
+            </div>
+
+            <div class="form-group">
+                <label for="source">Source</label>
+                <input type="text" id="source" name="source" 
+                       placeholder="e.g., Medical Journal, FDA News">
+            </div>
+
+            <div class="form-group">
+                <label for="coverImage">Cover Image URL</label>
+                <input type="url" id="coverImage" name="coverImage" 
+                       placeholder="https://example.com/image.jpg">
+            </div>
+
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" id="isHero" name="isHero"> 
+                    Make this a Hero Article
+                </label>
+                <small style="color: #666;">Hero articles appear at the top of the page</small>
+            </div>
+
+            <div class="button-group">
+                <button type="button" class="btn-primary" onclick="generateApiCall()">
+                    Generate API Call
+                </button>
+                <button type="button" class="btn-secondary" onclick="clearForm()">
+                    Clear Form
+                </button>
+                <button type="button" class="btn-success" onclick="testArticle()">
+                    Test with Sample Data
+                </button>
+            </div>
+        </form>
+
+        <div id="output" class="output" style="display: none;">
+            <h3>Generated GitHub Repository Dispatch</h3>
+            <p>Copy and run this curl command to add the article:</p>
+            <code id="curlCommand"></code>
+            
+            <h3>Payload JSON</h3>
+            <code id="jsonPayload"></code>
+        </div>
+    </div>
+
+    <script>
+        function generateApiCall() {
+            const form = document.getElementById('articleForm');
+            const formData = new FormData(form);
+            
+            const payload = {
+                event_type: "zapier-article-received",
+                client_payload: {
+                    title: formData.get('title'),
+                    snappyTitle: formData.get('snappyTitle') || null,
+                    url: formData.get('url'),
+                    category: formData.get('category'),
+                    tags: formData.get('tags'),
+                    source: formData.get('source'),
+                    coverImage: formData.get('coverImage') || null,
+                    publishedDate: new Date().toISOString(),
+                    isHero: document.getElementById('isHero').checked
+                }
+            };
+
+            // Generate curl command
+            const curlCommand = `curl -X POST \\
+  -H "Authorization: token YOUR_GITHUB_TOKEN" \\
+  -H "Content-Type: application/json" \\
+  -H "Accept: application/vnd.github.v3+json" \\
+  https://api.github.com/repos/Nick-PalPark/medaffairs.tech/dispatches \\
+  -d '${JSON.stringify(payload, null, 2)}'`;
+
+            // Display output
+            document.getElementById('curlCommand').textContent = curlCommand;
+            document.getElementById('jsonPayload').textContent = JSON.stringify(payload, null, 2);
+            document.getElementById('output').style.display = 'block';
+            
+            // Scroll to output
+            document.getElementById('output').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function clearForm() {
+            document.getElementById('articleForm').reset();
+            document.getElementById('output').style.display = 'none';
+        }
+
+        function testArticle() {
+            // Fill form with sample data
+            document.getElementById('title').value = 'AI Breakthrough in Drug Discovery';
+            document.getElementById('snappyTitle').value = 'AI Discovers Cancer Drug in Record Time!';
+            document.getElementById('url').value = 'https://example.com/ai-drug-discovery';
+            document.getElementById('category').value = 'Technology';
+            document.getElementById('tags').value = 'AI, drug discovery, cancer, breakthrough';
+            document.getElementById('source').value = 'Medical Tech Review';
+            document.getElementById('coverImage').value = 'https://via.placeholder.com/300x200?text=AI+Drug+Discovery';
+            document.getElementById('isHero').checked = true;
+            
+            // Generate API call immediately
+            generateApiCall();
+        }
+    </script>
+</body>
+</html>

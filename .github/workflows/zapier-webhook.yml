@@ -1,0 +1,120 @@
+name: Process Zapier Webhook - RSS Articles
+
+on:
+  repository_dispatch:
+    types: [zapier-article-received]
+  workflow_dispatch:
+    inputs:
+      test_article:
+        description: 'Test article JSON'
+        required: false
+        default: '{"title":"Test Article","url":"https://example.com","category":"Tech","tags":"test","coverImage":"","source":"Test Source"}'
+
+permissions:
+  contents: write
+
+jobs:
+  process-article:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          
+      - name: Process incoming article
+        id: process
+        run: |
+          # Create a processing script
+          cat > process_article.js << 'EOF'
+          const fs = require('fs');
+          
+          // Get article data from webhook payload or manual input
+          let articleData;
+          if (process.env.GITHUB_EVENT_NAME === 'repository_dispatch') {
+            articleData = JSON.parse(process.env.GITHUB_EVENT_CLIENT_PAYLOAD || '{}');
+          } else {
+            articleData = JSON.parse(process.env.TEST_ARTICLE || '{}');
+          }
+          
+          console.log('Processing article:', JSON.stringify(articleData, null, 2));
+          
+          // Load existing data
+          let data;
+          try {
+            data = JSON.parse(fs.readFileSync('data/articles.json', 'utf8'));
+          } catch (err) {
+            console.log('Creating new data structure');
+            data = {
+              last_updated: Date.now(),
+              heroes: [],
+              columns: {
+                news: [],
+                tech: [],
+                opinion: []
+              }
+            };
+          }
+          
+          // Process the new article
+          const processedArticle = {
+            original_title: articleData.title,
+            generated_title: articleData.snappyTitle || null,
+            manual_title: null,
+            url: articleData.url,
+            source: articleData.source || 'Unknown',
+            published_at: new Date(articleData.publishedDate || Date.now()).getTime(),
+            image: articleData.coverImage || null
+          };
+          
+          // Determine category/column assignment
+          const category = articleData.category?.toLowerCase() || 'news';
+          const tags = (articleData.tags || '').toLowerCase();
+          
+          let targetColumn = 'news'; // default
+          if (tags.includes('hero') || articleData.isHero) {
+            // This is a hero article
+            data.heroes.unshift(processedArticle);
+            data.heroes = data.heroes.slice(0, 3); // Keep only 3 heroes
+          } else {
+            // Regular column article
+            if (category.includes('tech') || tags.includes('tech')) {
+              targetColumn = 'tech';
+            } else if (category.includes('opinion') || category.includes('analysis') || tags.includes('opinion')) {
+              targetColumn = 'opinion';
+            }
+            
+            data.columns[targetColumn].unshift(processedArticle);
+            data.columns[targetColumn] = data.columns[targetColumn].slice(0, 20); // Keep only 20 per column
+          }
+          
+          // Update timestamp
+          data.last_updated = Date.now();
+          
+          // Write back to file
+          fs.writeFileSync('data/articles.json', JSON.stringify(data, null, 2));
+          console.log('Article processed and saved');
+          EOF
+          
+          # Run the processing script
+          node process_article.js
+        env:
+          GITHUB_EVENT_CLIENT_PAYLOAD: ${{ toJson(github.event.client_payload) }}
+          TEST_ARTICLE: ${{ github.event.inputs.test_article }}
+          
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          
+          if [ -n "$(git status --porcelain)" ]; then
+            git add data/articles.json
+            git commit -m "Add new article via Zapier webhook: $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
+            git push
+            echo "Article added and pushed to repository"
+          else
+            echo "No changes to commit"
+          fi
