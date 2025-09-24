@@ -1,0 +1,246 @@
+name: Sync articles from medaffairs-articles
+
+# This workflow syncs articles from the medaffairs-articles repository to medaffairs.tech
+# It processes article data and maintains the site structure with heroes and categorized columns
+# Preserves title hierarchy: manual_title -> generated_title -> original_title
+
+on:
+  repository_dispatch:
+    types: [medaffairs-data-updated]  # Triggered when medaffairs-articles data is updated
+  workflow_dispatch:  # Allow manual triggering from GitHub UI
+
+permissions:
+  contents: write    # allow commit back to this repo
+  pages: write       # allow triggering GitHub Pages deployment
+  id-token: write    # for GitHub Pages
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout medaffairs.tech repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Checkout medaffairs-articles repository
+        uses: actions/checkout@v4
+        with:
+          repository: Nick-PalPark/medaffairs-articles
+          token: ${{ secrets.MEDAFFAIRS_ARTICLES_TOKEN }}
+          path: medaffairs-articles
+          fetch-depth: 1
+
+      - name: Setup Node.js for processing
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Validate source repository
+        run: |
+          # Check if source articles.json exists
+          if [ ! -f medaffairs-articles/articles.json ]; then
+            echo "❌ Error: No articles.json found in medaffairs-articles repository"
+            echo "Expected file: medaffairs-articles/articles.json"
+            ls -la medaffairs-articles/ || echo "Directory does not exist"
+            exit 1
+          fi
+          
+          echo "✅ Source articles.json found"
+          echo "File size: $(wc -c < medaffairs-articles/articles.json) bytes"
+
+      - name: Process and sync articles
+        run: |
+          # Create data directory if it doesn't exist
+          mkdir -p data
+          
+          echo "🔄 Processing articles with Node.js..."
+          
+          # Process articles using Node.js
+          node -e "
+          const fs = require('fs');
+          
+          try {
+            // Read source data
+            const sourceData = JSON.parse(fs.readFileSync('medaffairs-articles/articles.json', 'utf8'));
+            console.log('Source data loaded, processing articles...');
+            
+            // Initialize output structure
+            const output = {
+              last_updated: Date.now(),
+              heroes: [],
+              columns: {
+                news: [],
+                tech: [],
+                opinion: []
+              }
+            };
+            
+            // Function to get display title following hierarchy
+            function getDisplayTitle(article) {
+              if (article.manual_title && article.manual_title.trim()) {
+                return article.manual_title;
+              }
+              if (article.generated_title && article.generated_title.trim()) {
+                return article.generated_title;
+              }
+              if (article.snappyTitle && article.snappyTitle.trim()) {
+                return article.snappyTitle;
+              }
+              return article.title || article.original_title || 'Untitled';
+            }
+            
+            // Function to convert article to site format
+            function convertArticle(article) {
+              const converted = {
+                url: article.url || '#',
+                source: article.source || 'Unknown',
+                published_at: article.publishedDate ? new Date(article.publishedDate).getTime() : Date.now()
+              };
+              
+              // Preserve title hierarchy
+              if (article.manual_title && article.manual_title.trim()) {
+                converted.manual_title = article.manual_title;
+              }
+              if (article.generated_title && article.generated_title.trim()) {
+                converted.generated_title = article.generated_title;
+              } else if (article.snappyTitle && article.snappyTitle.trim()) {
+                converted.generated_title = article.snappyTitle;
+              }
+              if (article.title && article.title.trim()) {
+                converted.original_title = article.title;
+              }
+              
+              return converted;
+            }
+            
+            // Function to convert article for hero section (includes image)
+            function convertHeroArticle(article) {
+              const converted = convertArticle(article);
+              if (article.coverImage) {
+                converted.image = article.coverImage;
+              }
+              return converted;
+            }
+            
+            // Function to categorize articles
+            function categorizeArticle(article) {
+              const category = article.category ? article.category.toLowerCase() : '';
+              const tags = article.tags ? article.tags.toLowerCase() : '';
+              
+              if (category.includes('tech') || tags.includes('tech') || tags.includes('ai')) {
+                return 'tech';
+              } else if (category.includes('opinion') || category.includes('analysis')) {
+                return 'opinion';
+              } else {
+                return 'news'; // default to industry news
+              }
+            }
+            
+            // Process articles from source data
+            let articles = [];
+            
+            if (sourceData.approvedArticles && Array.isArray(sourceData.approvedArticles)) {
+              articles = sourceData.approvedArticles.filter(article => 
+                article.status === 'approved' && article.url
+              );
+            } else if (Array.isArray(sourceData)) {
+              articles = sourceData.filter(article => article.url);
+            } else {
+              console.log('No approved articles found or unsupported format');
+            }
+            
+            console.log(\`Processing \${articles.length} articles...\`);
+            
+            // Sort articles by published date (newest first)
+            articles.sort((a, b) => {
+              const dateA = new Date(a.publishedDate || 0).getTime();
+              const dateB = new Date(b.publishedDate || 0).getTime();
+              return dateB - dateA;
+            });
+            
+            // Select top 3 articles for heroes
+            const heroArticles = articles.slice(0, 3);
+            output.heroes = heroArticles.map(convertHeroArticle);
+            
+            // Categorize remaining articles
+            const remainingArticles = articles.slice(3);
+            
+            remainingArticles.forEach(article => {
+              const category = categorizeArticle(article);
+              const converted = convertArticle(article);
+              output.columns[category].push(converted);
+            });
+            
+            // Ensure we have some content in each column if there are enough articles
+            if (articles.length >= 6) {
+              // Rebalance if any column is empty
+              const totalRemaining = remainingArticles.length;
+              const minPerColumn = Math.floor(totalRemaining / 3);
+              
+              ['news', 'tech', 'opinion'].forEach((column, index) => {
+                if (output.columns[column].length === 0 && remainingArticles.length > index) {
+                  // Move an article from the most populated column
+                  let maxColumn = 'news';
+                  let maxCount = output.columns.news.length;
+                  
+                  if (output.columns.tech.length > maxCount) {
+                    maxColumn = 'tech';
+                    maxCount = output.columns.tech.length;
+                  }
+                  if (output.columns.opinion.length > maxCount) {
+                    maxColumn = 'opinion';
+                  }
+                  
+                  if (output.columns[maxColumn].length > 1) {
+                    const movedArticle = output.columns[maxColumn].pop();
+                    output.columns[column].push(movedArticle);
+                  }
+                }
+              });
+            }
+            
+            // Write output
+            fs.writeFileSync('data/articles.json', JSON.stringify(output, null, 2));
+            console.log('✅ Articles processed and saved to data/articles.json');
+            console.log(\`📊 Summary:\`);
+            console.log(\`   Heroes: \${output.heroes.length}\`);
+            console.log(\`   Industry News: \${output.columns.news.length}\`);
+            console.log(\`   Tech Insights: \${output.columns.tech.length}\`);
+            console.log(\`   Opinion & Analysis: \${output.columns.opinion.length}\`);
+            console.log(\`   Total articles processed: \${articles.length}\`);
+            
+          } catch (error) {
+            console.error('❌ Error processing articles:', error.message);
+            console.error('Stack trace:', error.stack);
+            process.exit(1);
+          }
+          "
+
+      - name: Show changes
+        run: |
+          echo "=== Git status ==="
+          git status
+          echo ""
+          echo "=== Changes to data/articles.json ==="
+          git diff --no-color data/articles.json || echo "No existing data/articles.json to compare"
+
+      - name: Commit and push changes if any
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          if [ -n "$(git status --porcelain)" ]; then
+            git add data/articles.json
+            git commit -m "Sync articles from medaffairs-articles: $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
+            git push
+            echo "✅ Pushed updated articles data"
+          else
+            echo "ℹ️  No changes to articles data"
+          fi
+
+      - name: Trigger GitHub Pages deployment
+        if: success()
+        run: |
+          echo "✅ Workflow completed successfully"
+          echo "GitHub Pages will automatically deploy the updated content"
