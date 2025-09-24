@@ -14,7 +14,7 @@ This README explains the supported synchronization patterns, required tokens/sec
 - Recommended repository_dispatch event_type (when using dispatch): `medaffairs-articles-updated`
 - Preferred secret names:
   - In medaffairs.tech (consumer): `MEDAFFAIRS_ARTICLES_TOKEN` — a PAT used to check out medaffairs-articles if it is private.
-  - In medaffairs-articles (producer), if the producer will dispatch to or push into medaffairs.tech: `MEDAFFAIRS_TECH_PAT` — a PAT used to call repository_dispatch or to push into medaffairs.tech.
+  - In medaffairs-articles (producer), if the producer will dispatch to or push into medaffairs.tech: `MEDAFFAIRS_TECH_PATS` — a PAT used to call repository_dispatch or to push into medaffairs.tech.
 
 ## Two supported synchronization approaches
 
@@ -29,7 +29,7 @@ Example dispatch step (producer, medaffairs-articles):
 ```bash
 # in medaffairs-articles workflow; MEDAFFAIRS_TECH_PATS stored in medaffairs-articles secrets
 curl -X POST \
-  -H "Authorization: token ${{ secrets.MEDAFFAIRS_TECH_PAT }}" \
+  -H "Authorization: token ${{ secrets.MEDAFFAIRS_TECH_PATS }}" \
   -H "Accept: application/vnd.github.v3+json" \
   https://api.github.com/repos/Nick-PalPark/medaffairs.tech/dispatches \
   -d '{"event_type":"medaffairs-articles-updated"}'
@@ -45,7 +45,7 @@ curl -X POST \
   - If the producer will call `repository_dispatch` on this repo: the PAT stored in medaffairs-articles (`MEDAFFAIRS_TECH_PATS`) needs repo:dispatch (or full repo) permission for medaffairs.tech.
   - If this repo will check out a private medaffairs-articles: store `MEDAFFAIRS_ARTICLES_TOKEN` in medaffairs.tech; it should have repo or repo:contents permission.
 - Where to set secrets:
-  - medaffairs-articles (Settings → Secrets → Actions): add `MEDAFFAIRS_TECH_PAT` if producer dispatches/pushes to this repo.
+  - medaffairs-articles (Settings → Secrets → Actions): add `MEDAFFAIRS_TECH_PATS` if producer dispatches/pushes to this repo.
   - medaffairs.tech (Settings → Secrets → Actions): add `MEDAFFAIRS_ARTICLES_TOKEN` if this repo will check out medaffairs-articles.
 
 ## Consumer workflow (medaffairs.tech)
