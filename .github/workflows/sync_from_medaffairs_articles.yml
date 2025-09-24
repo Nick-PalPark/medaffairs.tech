@@ -1,0 +1,212 @@
+name: Sync and Transform Articles from medaffairs-articles
+
+on:
+  repository_dispatch:
+    types: [medaffairs-articles-updated]
+  workflow_dispatch:
+    inputs:
+      force_sync:
+        description: 'Force sync even if no changes detected'
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  sync-and-transform:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout medaffairs.tech
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js (for JSON processing)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Ensure data directory exists
+        run: mkdir -p data
+
+      - name: Download articles from medaffairs-articles (public)
+        if: ${{ secrets.MEDAFFAIRS_ARTICLES_READ_PAT == '' }}
+        run: |
+          echo "Downloading from public medaffairs-articles repository..."
+          
+          # Try articles-updated.json first, then fallback to articles.json
+          if curl -fsSL -o /tmp/raw-articles.json \
+            "https://raw.githubusercontent.com/Nick-PalPark/medaffairs-articles/main/articles-updated.json"; then
+            echo "✅ Downloaded articles-updated.json"
+          elif curl -fsSL -o /tmp/raw-articles.json \
+            "https://raw.githubusercontent.com/Nick-PalPark/medaffairs-articles/main/articles.json"; then
+            echo "✅ Downloaded articles.json (fallback)"
+          else
+            echo "❌ Failed to download articles from medaffairs-articles repository"
+            exit 1
+          fi
+          
+          # Verify we got valid JSON
+          if ! python3 -m json.tool /tmp/raw-articles.json > /dev/null; then
+            echo "❌ Downloaded file is not valid JSON"
+            exit 1
+          fi
+
+      - name: Download articles from medaffairs-articles (private)
+        if: ${{ secrets.MEDAFFAIRS_ARTICLES_READ_PAT != '' }}
+        env:
+          READ_PAT: ${{ secrets.MEDAFFAIRS_ARTICLES_READ_PAT }}
+        run: |
+          echo "Downloading from private medaffairs-articles repository..."
+          
+          # Try articles-updated.json first, then fallback to articles.json
+          if curl -fsSL -H "Authorization: token $READ_PAT" \
+            -H "Accept: application/vnd.github.v3.raw" \
+            "https://api.github.com/repos/Nick-PalPark/medaffairs-articles/contents/articles-updated.json?ref=main" \
+            -o /tmp/raw-articles.json; then
+            echo "✅ Downloaded articles-updated.json"
+          elif curl -fsSL -H "Authorization: token $READ_PAT" \
+            -H "Accept: application/vnd.github.v3.raw" \
+            "https://api.github.com/repos/Nick-PalPark/medaffairs-articles/contents/articles.json?ref=main" \
+            -o /tmp/raw-articles.json; then
+            echo "✅ Downloaded articles.json (fallback)"
+          else
+            echo "❌ Failed to download articles from private medaffairs-articles repository"
+            echo "Please check that MEDAFFAIRS_ARTICLES_READ_PAT has correct permissions"
+            exit 1
+          fi
+          
+          # Verify we got valid JSON
+          if ! python3 -m json.tool /tmp/raw-articles.json > /dev/null; then
+            echo "❌ Downloaded file is not valid JSON"
+            exit 1
+          fi
+
+      - name: Transform article data format
+        run: |
+          echo "🔄 Starting data transformation..."
+          
+          node -e "
+          const fs = require('fs');
+          
+          try {
+            // Read the raw data
+            const rawData = JSON.parse(fs.readFileSync('/tmp/raw-articles.json', 'utf8'));
+            console.log('📊 Raw data structure:', Object.keys(rawData));
+            
+            // Initialize the target structure
+            const transformed = {
+              last_updated: Date.now(),
+              heroes: [],
+              columns: {
+                news: [],
+                tech: [],
+                opinion: []
+              }
+            };
+            
+            // Handle different input formats
+            let articles = [];
+            if (rawData.approvedArticles) {
+              // Format from medaffairs-articles repository
+              articles = rawData.approvedArticles;
+              if (rawData.lastUpdated) {
+                transformed.last_updated = new Date(rawData.lastUpdated).getTime();
+              }
+            } else if (Array.isArray(rawData)) {
+              // Direct array format
+              articles = rawData;
+            } else if (rawData.articles) {
+              // Nested articles format
+              articles = rawData.articles;
+            } else {
+              console.error('❌ Unrecognized data format. Expected approvedArticles, articles array, or direct array.');
+              process.exit(1);
+            }
+            
+            console.log('📰 Found', articles.length, 'articles to transform');
+            
+            if (articles.length === 0) {
+              console.log('⚠️  No articles found, creating empty structure');
+            }
+            
+            // Transform articles
+            let heroCount = 0;
+            articles.forEach((article, index) => {
+              const transformedArticle = {
+                original_title: article.title || 'Untitled',
+                url: article.url || '#',
+                source: article.source || 'Unknown',
+                published_at: article.publishedDate ? new Date(article.publishedDate).getTime() : Date.now()
+              };
+              
+              // Add optional fields
+              if (article.snappyTitle) transformedArticle.generated_title = article.snappyTitle;
+              if (article.manualTitle) transformedArticle.manual_title = article.manualTitle;
+              
+              // Determine placement - first 3 go to heroes, rest to columns
+              if (heroCount < 3) {
+                transformedArticle.image = article.coverImage || 'https://via.placeholder.com/180x150?text=News';
+                transformed.heroes.push(transformedArticle);
+                heroCount++;
+                console.log('  📌 Article ' + (index + 1) + ' -> Hero ' + heroCount + ': \"' + transformedArticle.original_title + '\"');
+              } else {
+                // Categorize into columns based on category or tags
+                const category = (article.category || '').toLowerCase();
+                const tags = (article.tags || '').toLowerCase();
+                
+                let targetColumn = 'news'; // default
+                if (category.includes('tech') || tags.includes('tech') || tags.includes('ai')) {
+                  targetColumn = 'tech';
+                } else if (category.includes('opinion') || category.includes('analysis') || tags.includes('opinion')) {
+                  targetColumn = 'opinion';
+                }
+                
+                transformed.columns[targetColumn].push(transformedArticle);
+                console.log('  📂 Article ' + (index + 1) + ' -> ' + targetColumn.toUpperCase() + ': \"' + transformedArticle.original_title + '\"');
+              }
+            });
+            
+            // Write the transformed data
+            fs.writeFileSync('data/articles.json', JSON.stringify(transformed, null, 2));
+            
+            console.log('');
+            console.log('✅ Transformation complete:');
+            console.log('  🎯 Heroes: ' + transformed.heroes.length);
+            console.log('  📈 Industry News: ' + transformed.columns.news.length);
+            console.log('  💻 Tech Insights: ' + transformed.columns.tech.length);
+            console.log('  💭 Opinion & Analysis: ' + transformed.columns.opinion.length);
+            console.log('  🕒 Last updated: ' + new Date(transformed.last_updated).toISOString());
+            
+          } catch (error) {
+            console.error('❌ Transformation failed:', error.message);
+            process.exit(1);
+          }
+          "
+
+      - name: Show changes
+        run: |
+          echo "=== File changes ==="
+          git --no-pager diff --no-color || echo "No changes detected"
+          echo "=== New articles.json preview ==="
+          head -30 data/articles.json
+
+      - name: Commit and push changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Sync and transform articles from medaffairs-articles [$(date -u +'%Y-%m-%d %H:%M:%S UTC')]"
+          file_pattern: data/articles.json
+          commit_user_name: "github-actions[bot]"
+          commit_user_email: "41898282+github-actions[bot]@users.noreply.github.com"
+          skip_dirty_check: ${{ github.event.inputs.force_sync == 'true' }}
+
+      - name: Trigger Pages deployment
+        if: success()
+        run: |
+          echo "✅ Articles synced successfully!"
+          echo "GitHub Pages will automatically deploy the updated site."
+          echo "Changes committed at: $(date -u +'%Y-%m-%d %H:%M:%S UTC')"

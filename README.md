@@ -17,7 +17,12 @@ Quick start / setup checklist
      - Run on `repository_dispatch` event named `medaffairs-data-updated` (or manually).
      - Check out medaffairs-data using the PAT and copy `articles.json` into `data/articles.json`.
      - Commit and push the updated file if it changed.
-   - After the commit, GitHub Pages (if configured) will publish the updated site.
+   - The workflow `.github/workflows/sync_from_medaffairs_articles.yml` will:
+     - Run on `repository_dispatch` event named `medaffairs-articles-updated` (or manually).
+     - Download articles from medaffairs-articles repository.
+     - Transform the data format from `articles-updated.json` to the expected `data/articles.json` format.
+     - Commit and push the updated file if it changed.
+   - After any commit, GitHub Pages (if configured) will automatically publish the updated site.
 
 4. GitHub Pages:
    - Configure GitHub Pages to serve from the branch/folder you want (e.g., main branch / root or `docs/`).

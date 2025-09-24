@@ -1,45 +1,28 @@
-name: Sync articles from medaffairs-articles
+# DEPRECATED: This workflow has been replaced by sync_from_medaffairs_articles.yml
+# which includes data transformation capabilities.
+# This file is kept for reference but should not be used.
+
+name: [DEPRECATED] Sync articles from medaffairs-articles
 
 on:
-  repository_dispatch:
-    types: [medaffairs-articles-updated]
+  # Disabled - use sync_from_medaffairs_articles.yml instead
+  workflow_dispatch:
+    inputs:
+      deprecated_notice:
+        description: 'This workflow is deprecated. Use sync_from_medaffairs_articles.yml instead.'
+        required: false
+        default: 'acknowledged'
 
 permissions:
   contents: write
 
 jobs:
-  sync:
+  deprecated-notice:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout medaffairs.tech
-        uses: actions/checkout@v4
-
-      - name: Ensure data dir
-        run: mkdir -p data
-
-      - name: Download articles.json (public medaffairs-articles)
-        if: ${{ secrets.MEDAFFAIRS_ARTICLES_READ_PAT == '' }}
+      - name: Deprecated workflow notice
         run: |
-          curl -fsSL -o data/articles.json \
-            https://raw.githubusercontent.com/Nick-PalPark/medaffairs-articles/main/articles.json
-
-      - name: Download articles.json (private medaffairs-articles)
-        if: ${{ secrets.MEDAFFAIRS_ARTICLES_READ_PAT != '' }}
-        env:
-          READ_PAT: ${{ secrets.MEDAFFAIRS_ARTICLES_READ_PAT }}
-        run: |
-          curl -fsSL -H "Authorization: token $READ_PAT" \
-            -H "Accept: application/vnd.github.v3.raw" \
-            "https://api.github.com/repos/Nick-PalPark/medaffairs-articles/contents/articles.json?ref=main" \
-            -o data/articles.json
-
-      - name: Show diff
-        run: git --no-pager diff --no-color || true
-
-      - name: Commit & push if changed
-        uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-          commit_message: "Sync articles.json from medaffairs-articles"
-          file_pattern: data/articles.json
-          commit_user_name: "github-actions[bot]"
-          commit_user_email: "41898282+github-actions[bot]@users.noreply.github.com"
+          echo "⚠️  This workflow is DEPRECATED"
+          echo "Please use sync_from_medaffairs_articles.yml instead"
+          echo "The new workflow includes data transformation capabilities"
+          exit 1
