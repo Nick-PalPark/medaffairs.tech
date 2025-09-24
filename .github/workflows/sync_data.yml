@@ -1,8 +1,8 @@
-name: Sync articles.json from medaffairs-data
+name: Sync articles.json from medaffairs-articles
 
 on:
   repository_dispatch:
-    types: [medaffairs-data-updated]
+    types: [medaffairs-articles-updated]
   workflow_dispatch:
 
 permissions:
@@ -17,23 +17,69 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Checkout medaffairs-data (private) into subdir
-        uses: actions/checkout@v4
-        with:
-          repository: Nick-PalPark/medaffairs-data
-          token: ${{ secrets.MEDAFFAIRS_DATA_TOKEN }}
-          path: medaffairs-data
-          fetch-depth: 1
-
       - name: Ensure data directory
         run: |
           mkdir -p data
+          echo "✅ Data directory ensured"
 
-      - name: Copy articles.json into site
+      - name: Test connection to content repository
+        env:
+          GITHUB_TOKEN: ${{ secrets.MEDAFFAIRS_ARTICLES_READ_PAT || github.token }}
         run: |
-          if [ ! -f medaffairs-data/articles.json ]; then echo "No medaffairs-data/articles.json found" && exit 1; fi
-          cp medaffairs-data/articles.json data/articles.json
-          echo "Copied medaffairs-data/articles.json to data/articles.json"
+          echo "🔍 Testing connection to medaffairs-articles repository..."
+          curl -f -s -H "Authorization: token $GITHUB_TOKEN" \
+            "https://api.github.com/repos/Nick-PalPark/medaffairs-articles" > /dev/null
+          echo "✅ Successfully connected to medaffairs-articles repository"
+
+      - name: Download articles.json (public medaffairs-articles)
+        if: ${{ secrets.MEDAFFAIRS_ARTICLES_READ_PAT == '' }}
+        run: |
+          echo "📥 Downloading articles.json from public repository..."
+          curl -fsSL -o data/articles.json \
+            https://raw.githubusercontent.com/Nick-PalPark/medaffairs-articles/main/articles.json
+          echo "✅ Successfully downloaded articles.json (public access)"
+
+      - name: Download articles.json (private medaffairs-articles)
+        if: ${{ secrets.MEDAFFAIRS_ARTICLES_READ_PAT != '' }}
+        env:
+          READ_PAT: ${{ secrets.MEDAFFAIRS_ARTICLES_READ_PAT }}
+        run: |
+          echo "📥 Downloading articles.json from private repository..."
+          curl -fsSL -H "Authorization: token $READ_PAT" \
+            -H "Accept: application/vnd.github.v3.raw" \
+            "https://api.github.com/repos/Nick-PalPark/medaffairs-articles/contents/articles.json?ref=main" \
+            -o data/articles.json
+          echo "✅ Successfully downloaded articles.json (private access)"
+
+      - name: Validate JSON format
+        run: |
+          echo "🔍 Validating JSON format..."
+          if ! python3 -m json.tool data/articles.json > /dev/null; then
+            echo "❌ ERROR: Invalid JSON format in articles.json"
+            echo "File contents:"
+            cat data/articles.json
+            exit 1
+          fi
+          echo "✅ JSON format is valid"
+
+      - name: Verify file copy success
+        run: |
+          echo "🔍 Verifying file copy..."
+          if [ ! -f data/articles.json ]; then
+            echo "❌ ERROR: articles.json was not copied successfully"
+            exit 1
+          fi
+          file_size=$(stat -c%s data/articles.json)
+          if [ "$file_size" -eq 0 ]; then
+            echo "❌ ERROR: articles.json is empty"
+            exit 1
+          fi
+          echo "✅ File copy successful (size: ${file_size} bytes)"
+
+      - name: Show diff for logging
+        run: |
+          echo "📋 Changes to be committed:"
+          git --no-pager diff --no-color data/articles.json || echo "New file or no changes"
 
       - name: Commit & push changes if any
         run: |
@@ -41,9 +87,9 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           if [ -n "$(git status --porcelain)" ]; then
             git add data/articles.json
-            git commit -m "Sync articles.json from medaffairs-data: $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
+            git commit -m "Sync articles.json from medaffairs-articles: $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
             git push
-            echo "Pushed updated data/articles.json"
+            echo "✅ Pushed updated data/articles.json"
           else
-            echo "No changes to articles.json"
+            echo "ℹ️  No changes to articles.json"
           fi
