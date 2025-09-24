@@ -1,8 +1,8 @@
 // Build-time data-driven renderer for medaffairs.tech
-// Expects a data/articles.json present in the repo (populated by the sync workflow).
+// Expects a data/articles.json present in the repo (populated by the articles sync workflow).
 // Title selection: manual_title -> generated_title -> original_title.
 
-// Path to local data file (bundled at build-time by the workflow)
+// Path to local data file (bundled at build-time by the articles sync workflow)
 const LOCAL_DATA_PATH = 'data/articles.json';
 
 function displayTitle(a){

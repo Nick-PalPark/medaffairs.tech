@@ -1,8 +1,8 @@
-name: Sync articles.json from medaffairs-data
+name: Sync articles from medaffairs-articles
 
 on:
   repository_dispatch:
-    types: [medaffairs-data-updated]
+    types: [medaffairs-articles-updated]
   workflow_dispatch:
 
 permissions:
@@ -17,12 +17,12 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Checkout medaffairs-data (private) into subdir
+      - name: Checkout medaffairs-articles into subdir
         uses: actions/checkout@v4
         with:
-          repository: Nick-PalPark/medaffairs-data
-          token: ${{ secrets.MEDAFFAIRS_DATA_TOKEN }}
-          path: medaffairs-data
+          repository: Nick-PalPark/medaffairs-articles
+          token: ${{ secrets.MEDAFFAIRS_ARTICLES_TOKEN }}
+          path: medaffairs-articles
           fetch-depth: 1
 
       - name: Ensure data directory
@@ -31,9 +31,9 @@ jobs:
 
       - name: Copy articles.json into site
         run: |
-          if [ ! -f medaffairs-data/articles.json ]; then echo "No medaffairs-data/articles.json found" && exit 1; fi
-          cp medaffairs-data/articles.json data/articles.json
-          echo "Copied medaffairs-data/articles.json to data/articles.json"
+          if [ ! -f medaffairs-articles/articles.json ]; then echo "No medaffairs-articles/articles.json found" && exit 1; fi
+          cp medaffairs-articles/articles.json data/articles.json
+          echo "Copied medaffairs-articles/articles.json to data/articles.json"
 
       - name: Commit & push changes if any
         run: |
@@ -41,7 +41,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           if [ -n "$(git status --porcelain)" ]; then
             git add data/articles.json
-            git commit -m "Sync articles.json from medaffairs-data: $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
+            git commit -m "Sync articles.json from medaffairs-articles: $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
             git push
             echo "Pushed updated data/articles.json"
           else
