@@ -1,0 +1,92 @@
+name: Sync articles.json from medaffairs-articles
+
+on:
+  repository_dispatch:
+    types: [medaffairs-data-updated]
+  workflow_dispatch:
+
+permissions:
+  contents: write    # allow commit back to this repo
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout medaffairs.tech repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Checkout medaffairs-articles repository (private)
+        uses: actions/checkout@v4
+        with:
+          repository: Nick-PalPark/medaffairs-articles
+          token: ${{ secrets.MEDAFFAIRS_DATA_TOKEN }}
+          path: medaffairs-articles
+          fetch-depth: 1
+
+      - name: Ensure data directory exists
+        run: |
+          mkdir -p data
+          echo "✓ Data directory created/verified"
+
+      - name: Validate source articles.json exists
+        run: |
+          if [ ! -f medaffairs-articles/articles.json ]; then
+            echo "❌ ERROR: medaffairs-articles/articles.json not found"
+            echo "Available files in medaffairs-articles:"
+            ls -la medaffairs-articles/ || echo "Directory does not exist"
+            exit 1
+          fi
+          echo "✓ Source articles.json found"
+
+      - name: Validate JSON structure
+        run: |
+          echo "Validating JSON structure..."
+          if ! python3 -c "import json; json.load(open('medaffairs-articles/articles.json'))"; then
+            echo "❌ ERROR: Invalid JSON structure in medaffairs-articles/articles.json"
+            echo "JSON content preview:"
+            head -20 medaffairs-articles/articles.json || echo "Cannot read file"
+            exit 1
+          fi
+          echo "✓ JSON structure is valid"
+
+      - name: Copy articles.json to data directory
+        run: |
+          cp medaffairs-articles/articles.json data/articles.json
+          echo "✓ Successfully copied articles.json to data/articles.json"
+          
+          echo "File size comparison:"
+          echo "Source: $(wc -c < medaffairs-articles/articles.json) bytes"
+          echo "Target: $(wc -c < data/articles.json) bytes"
+
+      - name: Show changes (if any)
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "📝 Changes detected:"
+            git --no-pager diff --no-color data/articles.json || true
+          else
+            echo "ℹ️  No changes detected in articles.json"
+          fi
+
+      - name: Commit and push changes if any
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          if [ -n "$(git status --porcelain)" ]; then
+            git add data/articles.json
+            git commit -m "Sync articles.json from medaffairs-articles: $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
+            git push
+            echo "✅ Successfully pushed updated articles.json"
+          else
+            echo "ℹ️  No changes to commit"
+          fi
+
+      - name: Log completion
+        run: |
+          echo "🎉 Sync workflow completed successfully"
+          echo "Timestamp: $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
+          echo "Target file: data/articles.json"
+          echo "Size: $(wc -c < data/articles.json) bytes"
